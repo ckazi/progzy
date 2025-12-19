@@ -1,0 +1,67 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: proxy_postgres
+    environment:
+      POSTGRES_DB: proxydb
+      POSTGRES_USER: proxyuser
+      POSTGRES_PASSWORD: proxypass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U proxyuser -d proxydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - proxy-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: proxy_backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: proxyuser
+      DB_PASSWORD: proxypass
+      DB_NAME: proxydb
+      PROXY_PORT: 8080
+      API_PORT: 8081
+      JWT_SECRET: change-this-secret-in-production
+      TWOFA_ENCRYPTION_KEY: change-this-twofa-key
+    ports:
+      - "8080:8080"  # Proxy port
+      - "8081:8081"  # API port
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - proxy-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: proxy_frontend
+    environment:
+      VITE_API_URL: http://localhost:8081
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - proxy-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  proxy-network:
+    driver: bridge

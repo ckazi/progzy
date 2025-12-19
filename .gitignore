@@ -1,0 +1,22 @@
+# Backend
+backend/proxy-server
+backend/go.sum
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+
+# Database
+postgresql/data/
+
+# Environment
+.env
+*.env
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
