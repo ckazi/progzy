@@ -60,6 +60,12 @@ You can change ports in `docker-compose.yml` if needed.
 - Per-user proxy lists (whitelist/blacklist)
 - Automatic log retention cleanup
 
+## License
+
+MIT
+
+---
+
 <div align="center">
 
 Are you enjoying this project? 🍻 Buy me a beer!  
@@ -70,7 +76,3 @@ monero: 41ugNNZ5erdfj8ofHFhkb2gtwnpsB25digy6DWP1kCgRTJVbg6p7E6YMWbza7iCSMWaeuk9Q
 🍻🍻🍻
 
 </div>
-
-## License
-
-MIT
