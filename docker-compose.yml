@@ -3,16 +3,13 @@ services:
     image: postgres:16-alpine
     container_name: proxy_postgres
     environment:
-      POSTGRES_DB: proxydb
-      POSTGRES_USER: proxyuser
-      POSTGRES_PASSWORD: proxypass
+      POSTGRES_DB: progzy_db
+      POSTGRES_USER: u_progzy
+      POSTGRES_PASSWORD: P3gZy!9vK8sQ2xL4mN7r
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - "5432:5432"
+      - ./postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U proxyuser -d proxydb"]
+      test: ["CMD-SHELL", "pg_isready -U u_progzy -d progzy_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -20,23 +17,20 @@ services:
       - proxy-network
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ckazi/progzy-api:1.0.0
     container_name: proxy_backend
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_USER: proxyuser
-      DB_PASSWORD: proxypass
-      DB_NAME: proxydb
+      DB_USER: u_progzy
+      DB_PASSWORD: P3gZy!9vK8sQ2xL4mN7r
+      DB_NAME: progzy_db
       PROXY_PORT: 8080
       API_PORT: 8081
-      JWT_SECRET: change-this-secret-in-production
-      TWOFA_ENCRYPTION_KEY: change-this-twofa-key
+      JWT_SECRET: progzy-default-jwt-secret
+      TWOFA_ENCRYPTION_KEY: progzy-default-2fa-key
     ports:
-      - "8080:8080"  # Proxy port
-      - "8081:8081"  # API port
+      - "18080:8080"  # Proxy port
     depends_on:
       postgres:
         condition: service_healthy
@@ -45,22 +39,15 @@ services:
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: ckazi/progzy-ui:1.0.0
     container_name: proxy_frontend
-    environment:
-      VITE_API_URL: http://localhost:8081
     ports:
-      - "3000:80"
+      - "13000:80"
     depends_on:
       - backend
     networks:
       - proxy-network
     restart: unless-stopped
-
-volumes:
-  postgres_data:
 
 networks:
   proxy-network:

@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import InitGate from './components/InitGate';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import InitSetup from './pages/InitSetup';
@@ -12,6 +13,7 @@ import Profile from './pages/Profile';
 function App() {
   return (
     <Router>
+      <InitGate />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/init-setup" element={<InitSetup />} />

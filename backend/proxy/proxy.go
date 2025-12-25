@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -65,6 +66,12 @@ func (ps *ProxyServer) authenticateRequest(r *http.Request) (*utils.Claims, erro
 			return nil, fmt.Errorf("invalid credentials format")
 		}
 		username, password = creds[0], creds[1]
+		if decodedUser, err := url.QueryUnescape(username); err == nil {
+			username = decodedUser
+		}
+		if decodedPass, err := url.QueryUnescape(password); err == nil {
+			password = decodedPass
+		}
 
 	case "Bearer":
 		claims, err := utils.ValidateToken(parts[1])

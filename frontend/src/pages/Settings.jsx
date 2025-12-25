@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { settingsAPI } from '../services/api';
+import { settingsAPI, systemAPI } from '../services/api';
 
 function Settings() {
   const [settings, setSettings] = useState([]);
@@ -43,12 +43,8 @@ function Settings() {
   const fetchPublicIp = async () => {
     try {
       setIpError('');
-      const response = await fetch('https://api.ipify.org?format=json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch IP');
-      }
-      const data = await response.json();
-      setPublicIp(data.ip);
+      const response = await systemAPI.getPublicIp();
+      setPublicIp(response.data.ip);
     } catch (err) {
       setIpError('Unable to determine IP');
     }

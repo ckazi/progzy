@@ -5,8 +5,9 @@ const resolveApiUrl = () => {
     return import.meta.env.VITE_API_URL;
   }
   if (typeof window !== 'undefined') {
-    const { protocol, hostname } = window.location;
-    return `${protocol}//${hostname}:8081`;
+    const { protocol, hostname, port } = window.location;
+    const originPort = port ? `:${port}` : '';
+    return `${protocol}//${hostname}${originPort}`;
   }
   return 'http://localhost:8081';
 };
@@ -84,6 +85,10 @@ export const auditAPI = {
 export const settingsAPI = {
   getAll: () => api.get('/api/settings'),
   update: (key, value) => api.put('/api/settings', { key, value }),
+};
+
+export const systemAPI = {
+  getPublicIp: () => api.get('/api/system/public-ip'),
 };
 
 export const twoFactorAPI = {

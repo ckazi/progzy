@@ -57,6 +57,10 @@ func NewDatabase() (*Database, error) {
 
 	database := &Database{DB: db}
 
+	if err := database.applyInitSQL(); err != nil {
+		return nil, fmt.Errorf("failed to apply init sql: %v", err)
+	}
+
 	if err := database.ensureProxySchema(); err != nil {
 		return nil, fmt.Errorf("failed to ensure proxy schema: %v", err)
 	}
@@ -72,11 +76,63 @@ func (d *Database) Close() error {
 
 func (d *Database) IsInitialized() (bool, error) {
 	var count int
-	err := d.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+	err := d.DB.QueryRow("SELECT COUNT(*) FROM users WHERE is_admin = true").Scan(&count)
 	if err != nil {
 		return false, err
 	}
 	return count > 0, nil
+}
+
+func (d *Database) applyInitSQL() error {
+	exists, err := d.tableExists("users")
+	if err != nil {
+		return err
+	}
+	if exists {
+		return nil
+	}
+
+	if path := strings.TrimSpace(os.Getenv("INIT_SQL_PATH")); path != "" {
+		return d.execInitSQL(path)
+	}
+
+	candidates := []string{
+		"init.sql",
+		"postgresql/init.sql",
+		"/root/init.sql",
+	}
+
+	for _, path := range candidates {
+		if err := d.execInitSQL(path); err == nil {
+			return nil
+		} else if !os.IsNotExist(err) {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (d *Database) tableExists(table string) (bool, error) {
+	var name sql.NullString
+	if err := d.DB.QueryRow("SELECT to_regclass($1)", "public."+table).Scan(&name); err != nil {
+		return false, err
+	}
+	return name.Valid && name.String != "", nil
+}
+
+func (d *Database) execInitSQL(path string) error {
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	if strings.TrimSpace(string(content)) == "" {
+		return nil
+	}
+	if _, err := d.DB.Exec(string(content)); err != nil {
+		return fmt.Errorf("init sql failed (%s): %w", path, err)
+	}
+	return nil
 }
 
 func (d *Database) CreateUser(user *models.UserCreate, passwordHash string) (*models.User, error) {

@@ -4,6 +4,7 @@ import Layout from '../components/Layout';
 import { usersAPI } from '../services/api';
 
 function Users() {
+  const minPasswordLength = 6;
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -22,6 +23,7 @@ function Users() {
   const [whitelistText, setWhitelistText] = useState('');
   const [blacklistText, setBlacklistText] = useState('');
   const [modalLoading, setModalLoading] = useState(false);
+  const [showGeneratedPassword, setShowGeneratedPassword] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const [pendingEditId, setPendingEditId] = useState(null);
@@ -126,6 +128,16 @@ function Users() {
       return;
     }
 
+    if (!editingUser && formData.password.length < minPasswordLength) {
+      setError(`Password must be at least ${minPasswordLength} characters long`);
+      return;
+    }
+
+    if (editingUser && formData.password && formData.password.length < minPasswordLength) {
+      setError(`Password must be at least ${minPasswordLength} characters long`);
+      return;
+    }
+
     const proxyType = formData.proxy_type || 'default';
     const parseList = (text) =>
       text
@@ -203,6 +215,54 @@ function Users() {
       ...formData,
       [e.target.name]: value,
     });
+  };
+
+  const generatePassword = (length = 12) => {
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&-_=+';
+    if (window.crypto?.getRandomValues) {
+      const values = new Uint32Array(length);
+      window.crypto.getRandomValues(values);
+      return Array.from(values, (n) => alphabet[n % alphabet.length]).join('');
+    }
+    let result = '';
+    for (let i = 0; i < length; i += 1) {
+      result += alphabet[Math.floor(Math.random() * alphabet.length)];
+    }
+    return result;
+  };
+
+  const handleGeneratePassword = () => {
+    const nextPassword = generatePassword();
+    setFormData((prev) => ({
+      ...prev,
+      password: nextPassword,
+      confirmPassword: nextPassword,
+    }));
+    setShowGeneratedPassword(true);
+    setError('');
+  };
+
+  const handleCopyPassword = async () => {
+    if (!formData.password) {
+      return;
+    }
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(formData.password);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = formData.password;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+    } catch (err) {
+      setError('Failed to copy password');
+    }
   };
 
   if (loading) {
@@ -304,15 +364,36 @@ function Users() {
               </div>
 
               <div className="form-group">
-                <label>Password {editingUser && '(leave empty to keep current)'}</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="input"
-                  required={!editingUser}
-                />
+                <label>Password {editingUser && '(leave empty to keep current)'} (min {minPasswordLength} chars)</label>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input
+                    type={showGeneratedPassword ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="input"
+                    required={!editingUser}
+                    style={{ marginBottom: 0 }}
+                  />
+                  <button type="button" className="button button-secondary" onClick={handleGeneratePassword}>
+                    Generate
+                  </button>
+                  <button
+                    type="button"
+                    className="button button-secondary"
+                    onClick={() => setShowGeneratedPassword((prev) => !prev)}
+                  >
+                    {showGeneratedPassword ? 'Hide' : 'Show'}
+                  </button>
+                  <button
+                    type="button"
+                    className="button button-secondary"
+                    onClick={handleCopyPassword}
+                    disabled={!formData.password}
+                  >
+                    Copy
+                  </button>
+                </div>
               </div>
 
               <div className="form-group">

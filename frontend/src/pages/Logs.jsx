@@ -28,7 +28,7 @@ function Logs() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('logs');
-  const [limit, setLimit] = useState(100);
+  const [limit, setLimit] = useState(25);
   const [logFilters, setLogFilters] = useState(() => ({ ...defaultLogFilters }));
   const [appliedLogFilters, setAppliedLogFilters] = useState(() => ({ ...defaultLogFilters }));
   const [statsRange, setStatsRange] = useState(() => ({ ...defaultStatsRange }));
@@ -258,9 +258,10 @@ function Logs() {
             className="input"
             style={{ width: '120px', marginBottom: 0 }}
           >
+            <option value={25}>25</option>
             <option value={50}>50</option>
             <option value={100}>100</option>
-            <option value={250}>250</option>
+            <option value={200}>200</option>
             <option value={500}>500</option>
           </select>
         </div>

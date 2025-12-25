@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { setAuth } from '../utils/auth';
 
 function InitSetup() {
+  const minPasswordLength = 6;
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
@@ -13,6 +14,24 @@ function InitSetup() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checkingInit, setCheckingInit] = useState(true);
+
+  useEffect(() => {
+    const checkInitialization = async () => {
+      try {
+        const response = await authAPI.checkInit();
+        if (response.data.initialized) {
+          navigate('/login', { replace: true });
+        }
+      } catch (err) {
+        console.error('Failed to check initialization:', err);
+      } finally {
+        setCheckingInit(false);
+      }
+    };
+
+    checkInitialization();
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -28,6 +47,11 @@ function InitSetup() {
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+    if (formData.password.length < minPasswordLength) {
+      setError(`Password must be at least ${minPasswordLength} characters long`);
       setLoading(false);
       return;
     }
@@ -47,6 +71,14 @@ function InitSetup() {
       setLoading(false);
     }
   };
+
+  if (checkingInit) {
+    return (
+      <div className="auth-container">
+        <div className="loading">Checking system status...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-container">
@@ -73,7 +105,7 @@ function InitSetup() {
           </div>
 
           <div className="form-group">
-            <label>Password</label>
+            <label>Password (min {minPasswordLength} chars)</label>
             <input
               type="password"
               name="password"

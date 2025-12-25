@@ -46,6 +46,7 @@ func main() {
 	usersHandler := handlers.NewUsersHandler(db)
 	statsHandler := handlers.NewStatsHandler(db)
 	settingsHandler := handlers.NewSettingsHandler(db)
+	systemHandler := handlers.NewSystemHandler()
 	scheduleLogCleanup(db)
 
 	r := mux.NewRouter()
@@ -84,6 +85,7 @@ func main() {
 
 	api.HandleFunc("/settings", settingsHandler.GetSettings).Methods("GET")
 	api.HandleFunc("/settings", settingsHandler.UpdateSetting).Methods("PUT")
+	api.HandleFunc("/system/public-ip", systemHandler.GetPublicIP).Methods("GET")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},

@@ -28,8 +28,12 @@ function Layout({ children }) {
           borderBottom: '1px solid rgba(255,255,255,0.1)',
         }}
       >
-        <Link to="/dashboard" className="button button-secondary" style={{ fontSize: '20px', fontWeight: '600', background: '#24313f', border: 'none' }}>
-          Proxy Server Web UI
+        <Link
+          to="/dashboard"
+          className="button button-secondary"
+          style={{ fontSize: '20px', fontWeight: '600', background: '#24313f', border: 'none', textDecoration: 'none' }}
+        >
+          Progzy UI
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <nav className="nav">

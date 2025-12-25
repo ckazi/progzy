@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { statsAPI } from '../services/api';
+import { statsAPI, systemAPI } from '../services/api';
 
 function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -31,12 +31,8 @@ function Dashboard() {
   const fetchPublicIp = async () => {
     try {
       setIpError('');
-      const response = await fetch('https://api.ipify.org?format=json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch');
-      }
-      const data = await response.json();
-      setPublicIp(data.ip);
+      const response = await systemAPI.getPublicIp();
+      setPublicIp(response.data.ip);
     } catch (err) {
       setIpError('Unable to detect public IP automatically');
     }
@@ -101,7 +97,7 @@ function Dashboard() {
             </p>
             <ul style={{ lineHeight: '1.6', color: '#555', marginLeft: '18px' }}>
               <li>Proxy host: use your public IP ({publicIp || ipError || 'detecting...'}), or internal IP on LAN.</li>
-              <li>Proxy ports: HTTP proxy on <strong>8080</strong>, API on <strong>8081</strong>, Web UI on <strong>3000</strong>.</li>
+              <li>Proxy ports: HTTP proxy on <strong>18080</strong>, Web UI on <strong>13000</strong> (API via <strong>/api</strong>).</li>
               <li>Authentication: use username/password or obtain a JWT token from the Web UI.</li>
               <li>Whitelist/open the ports in your firewall or router to allow remote clients.</li>
             </ul>

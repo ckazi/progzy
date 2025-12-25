@@ -18,6 +18,8 @@ type UsersHandler struct {
 	db *database.Database
 }
 
+const minPasswordLength = 6
+
 var allowedProxyTypes = map[string]struct{}{
 	"default":   {},
 	"whitelist": {},
@@ -72,6 +74,10 @@ func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	if req.Username == "" || req.Password == "" {
 		respondWithError(w, http.StatusBadRequest, "Username and password are required")
+		return
+	}
+	if len(req.Password) < minPasswordLength {
+		respondWithError(w, http.StatusBadRequest, "Password must be at least 6 characters long")
 		return
 	}
 
@@ -136,6 +142,10 @@ func (h *UsersHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Password != nil {
+		if len(*req.Password) < minPasswordLength {
+			respondWithError(w, http.StatusBadRequest, "Password must be at least 6 characters long")
+			return
+		}
 		hashedPassword, err := utils.HashPassword(*req.Password)
 		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, "Failed to hash password")

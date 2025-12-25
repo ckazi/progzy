@@ -1,37 +1,33 @@
 # Quick Start
 
-Launch the full stack in three steps.
+This is the fastest way to get a working proxy server with the admin UI.
 
-1. **Start the stack**
-   ```bash
-   docker-compose up -d
-   ```
-2. **Open the UI**
-   ```
-   http://localhost:3000
-   ```
-3. **Create the initial admin**
-   - Choose a username, password, and optional email.
-   - After submitting, you will be logged in automatically.
+## 1) Start the stack
 
-### Next Steps
+```bash
+docker compose up -d
+```
 
-- Visit **Profile & Security** to enable two-factor authentication.
-- Create standard proxy users in the **Users** section.
-- Inspect activity in **Dashboard**, **Logs**, and the **Audit** tab.
+## 2) Open the UI
 
-### Using the Proxy
+```
+http://localhost:13000
+```
 
-Configure your application or OS proxy settings:
+On first launch you will be redirected to create the initial admin account.
 
-- Host: `localhost`
-- Port: `8080`
-- Authentication: either *Basic Auth* (`username:password`) or *Bearer* (`Proxy-Authorization: Bearer <JWT>`).
+## 3) Use the proxy
+
+- Host: your server IP
+- Port: `18080`
+- Auth: Basic (`username:password`) or Bearer token
 
 Example:
 
 ```bash
-curl -x http://localhost:8080 -U user:pass https://api.github.com
+curl -x http://localhost:18080 -U user:pass https://api.github.com
 ```
 
-For more details, environment variables, and troubleshooting tips see [README.md](README.md).
+If your password contains special characters, URL-encode it, for example `*` -> `%2A`.
+
+For more details see `README.md`.

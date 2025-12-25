@@ -56,6 +56,10 @@ func (h *AuthHandler) InitSetup(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "Username and password are required")
 		return
 	}
+	if len(req.Password) < minPasswordLength {
+		respondWithError(w, http.StatusBadRequest, "Password must be at least 6 characters long")
+		return
+	}
 
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
