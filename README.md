@@ -60,21 +60,16 @@ You can change ports in `docker-compose.yml` if needed.
 - Per-user proxy lists (whitelist/blacklist)
 - Automatic log retention cleanup
 
-## Useful commands
+<div align="center">
 
-```bash
-docker compose logs -f backend
-docker compose logs -f frontend
-docker compose logs -f postgres
-docker compose down
-docker compose down -v
-```
+Are you enjoying this project? 🍻 Buy me a beer!  
+btc: 1A7MMHinNsscFZrCo4TpoRumHHsGgHrgAc  
+ton: UQBjfsrp9ChrhRG441atYvhfdkqWStS47YLSifm9TYw1VHYM  
+doge: DGuL61gT5ZzEUyfDLmPhHvJsnjxbgjZ4Um  
+monero: 41ugNNZ5erdfj8ofHFhkb2gtwnpsB25digy6DWP1kCgRTJVbg6p7E6YMWbza7iCSMWaeuk9Qkeqzya8mCQcQDymH7P2tgZ5  
+🍻🍻🍻
 
-## Troubleshooting
-
-- **UI is blank**: wait for the containers to finish starting.
-- **Proxy auth fails**: confirm user is active and not admin-only.
-- **2FA issues**: make sure server time is in sync.
+</div>
 
 ## License
 
